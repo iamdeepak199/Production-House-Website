@@ -7,7 +7,7 @@ const session = require('express-session');
 const crypto = require('crypto');
 const secret = crypto.randomBytes(32).toString('hex');
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 const saltRounds = 10;
 
 // Middleware setup
@@ -135,6 +135,17 @@ app.post('/contact', (req, res) => {
         res.send('Thank you for your message!');
     });
 });
+
+
+app.get('/forgot', (req, res) => {
+    res.render('forgot');
+});
+
+
+// Catch-all route for undefined routes and errors
+app.get('*', (req, res) => {
+    res.status(404).render('error', { message: 'Page not found' });
+  });
 
 app.listen(port, () => {
     console.log(chalk.green.bold.inverse(`Server is running at http://localhost:${port}`));
