@@ -47,24 +47,26 @@ nav ul li a {
 
 /* Hero Section */
 .hero {
-    background: url('/images/hero-bg.jpg') no-repeat center center/cover;
+    background: url('hero-bg.Cjpg') no-repeat center center/cover;
     color: #fff;
     padding: 100px 0;
     text-align: center;
 }
 
 .hero-content {
-    max-width: 600px;
+    max-width:100%;
     margin: auto;
 }
 
 .hero h1 {
     font-size: 3rem;
+    color: #333;
     margin-bottom: 20px;
 }
 
 .hero p {
     font-size: 1.2rem;
+    color: #333;
     margin-bottom: 30px;
 }
 

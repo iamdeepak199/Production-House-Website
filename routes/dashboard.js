@@ -11,7 +11,6 @@ router.get('/dashboard', (req, res) => {
   // Render the dashboard and pass the user data
   res.render('dashboard', { user: req.session.user });
 });
-
 module.exports = router;   //export router 
 
 
