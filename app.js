@@ -1,9 +1,15 @@
+const handlebars = require("express-handlebars");
+const bodyParser = require("body-parser");
+const fs = require("fs");
+const qs = require("querystring");
+const http = require("http");
+const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');        //use in secur_pass:   Adds a unique salt to each password to ensure that even if two users have the same password, their hashes will be different.
 const chalk =require('chalk');           //use in heightlight something which important to identify clearly on consol.log
 const mysql = require('mysql2');         //use to create connection with Mysql DB 
 const express = require('express');      //use to include modules within your project :
 const path = require('path');            //it provides utilities for working with file and directory paths. It helps in constructing, manipulating, and working with file and directory paths
-const session = require('express-session'); //Create a session middleware
+const session = require('express-session'); //Create a session middleware  
 const crypto = require('crypto');           //data encryption and decryption & used for security purpose like user authentication where storing the password in Database in the encrypted form
 const secret = crypto.randomBytes(32).toString('hex');  //genrate random byets for password which is 32byts and includes hexa also :
 const app = express();                   //creates an app object that has it's own methods such as app. get() and app. post() that allow you to register route handlers.
@@ -29,13 +35,15 @@ app.use(express.urlencoded({ extended: true }));
 
 //to import the package which is passed as the param. Modules load from .env files
 require('dotenv').config();                      
+// Set up the session middleware
 app.use(session({
-    secret: 'process.env.SESSION_SECRET,',
-    resave: true,
-    saveUninitialized: true,
-    cookie: { maxAge: 6000 }                                    // Session timeout set to 1 minute (60000 ms)
-}));
-
+    secret: 'Name-Deepak-bhardwaj-vips', //strong secret key
+    resave: true, // Don't save session if unmodified
+    saveUninitialized: true, // Save uninitialized sessions
+    cookie: {
+      maxAge: 60000, // Session expires after 1 minute (60000 milliseconds)
+    }
+  }));
 //Set view engine hbs bcoz i'm using .hbs files : other engines pug,ejs
 app.set('view engine', 'hbs'); 
  
@@ -81,7 +89,7 @@ app.get('/', (req, res) => {
 
 // GET route for handling my login.hbs page :
 app.get('/login', (req, res) => {                                                   
-    res.render('login');                                              //render login page :
+    res.render('login');                            //render login page :
 });
 
 
@@ -181,13 +189,89 @@ app.get('/forgot', (req, res) => {
     res.render('forgot');
 });
 
-
 // Catch-all route for undefined routes and errors :
 app.get('*', (req, res) => {
     res.status(404).render('error', { message: 'Page not found' });
   });
 
-  
+
+
+
+/*---------------------------------------------------testiung------------------------------------------------>*/
+const otps = {}; // Object to store OTPs with user email as key
+
+function generateOTP() {
+    return Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit OTP
+}
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Set up Handlebars as the view engine
+app.set('view engine', 'hbs');
+app.set('views', path.join(__dirname, 'views'));
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Route to render the index.hbs file
+app.get('/', (req, res) => {
+    res.render('index');  // Renders the index.hbs file located in the views folder
+});
+
+// Route to handle OTP sending
+app.post('/send-mail', (req, res) => {
+    const { email } = req.body;
+
+    // Generate OTP and store it
+    const otp = generateOTP();
+    otps[email] = otp;
+
+    // Sending the email with OTP
+    const auth = nodemailer.createTransport({
+        service: "gmail",
+        secure: true,
+        port: 465,
+        auth: {
+            user: 'productionhouse2201@gmail.com',
+            pass: 'rxgq asts hpfq chws',
+        }
+    });
+
+    const mailOptions = {
+        from: "productionhouse2201@gmail.com",
+        to: email,
+        subject: "Your OTP Code",
+        text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
+    };
+
+    auth.sendMail(mailOptions, (error, emailResponse) => {
+        if (error) {
+            console.error('Error sending email to', email, ':', error);
+            res.status(500).send('Error sending email');
+        } else {
+            console.log("OTP sent successfully to", email);
+            res.status(200).send('OTP sent successfully!');
+        }
+    });
+});
+
+// Route to handle OTP verification
+app.post('/verify-otp', (req, res) => {
+    const { email, otp } = req.body;
+
+    // Verify the OTP
+    if (otps[email] && otps[email] == otp) {
+        res.render('resetpassword');
+    } else {
+        res.status(401).send('Invalid OTP!');
+    }
+});
+
+
+
+
 //app listening with fat arrow function which takes 2arguments : 
 app.listen(port, () => {                                                                       
     console.log(chalk.green.bold.inverse(`Server is running at http://localhost:${port}`)); 

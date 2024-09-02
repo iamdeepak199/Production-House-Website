@@ -13,10 +13,11 @@ body {
 
 .container {
     background-color: #fff;
-    padding: 5rem;
+    padding: 15rem;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 80px;
+    height: 60%;
 }
 
 h2 {
@@ -32,15 +33,17 @@ label {
     font-size: 14px;
     color: #555555;
 }
-
+.input[type="text"],
 input[type="email"] {
-    width: 95%;
+    width: 100%;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #dddddd;
     border-radius: 4px;
     font-size: 14px;
 }
+
+
 
 button {
     padding: 0.75rem;
