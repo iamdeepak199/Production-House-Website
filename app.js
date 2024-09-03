@@ -1,9 +1,9 @@
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
-const fs = require("fs");
-const qs = require("querystring");
-const http = require("http");
-const nodemailer = require('nodemailer');
+const fs = require("fs");                  //
+const qs = require("querystring");        //querstring is a module to take string query from the user's side 
+const http = require("http");            //use hhtp to create server :
+const nodemailer = require('nodemailer');//nodemailer is a module to use to send mail 
 const bcrypt = require('bcrypt');        //use in secur_pass:   Adds a unique salt to each password to ensure that even if two users have the same password, their hashes will be different.
 const chalk =require('chalk');           //use in heightlight something which important to identify clearly on consol.log
 const mysql = require('mysql2');         //use to create connection with Mysql DB 
@@ -66,8 +66,6 @@ const db2 = mysql.createConnection({
     database: 'usersquery'           // Database name 
 });
 
-
-
 //Dtaabase connect : DB_Name : register
 db.connect(err => {
     if (err) throw err;                                                                                              // if error occouerd throw error :
@@ -125,8 +123,13 @@ app.post('/register', (req, res) => {
             if (err) {                                                                      //if error ocuured:
                 res.status(500).send('<h2>Sever side Error : Please try again later</h2>');
                 return;
-            }                                                                                   
-            res.send('<h2>User registered successfully</h2>');                              //else return successful registered:            
+            }                                                        
+            res.send(`                                                            //response send 
+                <script>
+                    alert('User registered successfully!');               //create alert box to send message 
+                    window.location.href = '/';                                // Redirect to homepage or another page after alert while click OK 
+                </script>
+            `);                                      
         });
     });
 });
@@ -134,33 +137,32 @@ app.post('/register', (req, res) => {
 
 // POST route for handling my login.hbs page :
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
-    const query = 'SELECT * FROM users WHERE username = ?';
-    db.execute(query, [username], (err, results) => {
-        if (err) {                                                              //If Error :
-            res.status(500).send('Database query error');                     
-            return;
+    const { email, password } = req.body;
+
+    const sql = 'SELECT * FROM users WHERE email = ?';
+    db.query(sql, [email], (err, result) => {
+        if (err) {
+            return res.status(500).send('Database error');
         }
 
-        if (results.length > 0) {                                              //check results length > 0 otherwise return Invaild passwod:
-            const user = results[0];                                           
-            bcrypt.compare(password, user.password, (err, isMatch) => {        //use bcrypt.compare to password if match no issue otherwise Error
-                if (err) {                                                      // if Eror occoured :
-                    res.status(500).send('Error comparing passwords');
-                    return;
-                }
-
-                if (isMatch) {                                                  //if info. match :
-                    //console.log(user);                                       //if we want to show user data on console.log :
-                    req.session.user = user;                                   //request for session 
-                    res.redirect('/dashboard');                                //redirect my response to dashboard :
-                } else {                                                       // info not match 
-                    res.status(401).send('Invalid credentials');              
-                }
-            });
-        } else {                                                                // info not match 
-            res.status(401).send('Invalid credentials');
+        if (result.length === 0) {
+            return res.status(400).send('No user found');
         }
+
+        const user = result[0];
+        bcrypt.compare(password, user.password, (err, isMatch) => {
+            if (err) {
+                return res.status(500).send('Error comparing passwords');
+            }
+
+            if (isMatch) {
+                // Passwords match, proceed with login
+                res.send('Login successful');
+            } else {
+                // Passwords do not match
+                res.status(400).send('Invalid credentials');
+            }
+        });
     });
 });
 
@@ -179,7 +181,12 @@ app.post('/contact', (req, res) => {
             console.error('Error saving contact information:', err);
             return res.status(500).send('Server error, please try again later.');
         }
-        res.send('Thank you for your message!');
+        res.send(`                                                   //response send 
+            <script>
+                alert('Thank you for your message!');               //create alert box to send message 
+                window.location.href = '/';                         // Redirect to homepage or another page after alert while click OK 
+            </script>
+        `);
     });
 });
 
@@ -229,21 +236,21 @@ app.post('/send-mail', (req, res) => {
     otps[email] = otp;
 
     // Sending the email with OTP
-    const auth = nodemailer.createTransport({
-        service: "gmail",
-        secure: true,
-        port: 465,
-        auth: {
-            user: 'productionhouse2201@gmail.com',
-            pass: 'rxgq asts hpfq chws',
+    const auth = nodemailer.createTransport({       //auth stands for authentication & create a object 
+        service: "gmail",                           //use gmail service : Which type of service you use?
+        secure: true,                               //provide security or not optional but recommeded ture 
+        port: 465,                                  //gmail working on  port no : 465
+        auth: {                                      // auth property 
+            user: 'productionhouse2201@gmail.com',   //email name which is use to send otp 
+            pass: 'rxgq asts hpfq chws',             //email password which is genrateded by App genrate by less secure password :
         }
     });
 
     const mailOptions = {
-        from: "productionhouse2201@gmail.com",
-        to: email,
-        subject: "Your OTP Code",
-        text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
+        from: "productionhouse2201@gmail.com",    //sender mail
+        to: email,                                // to
+        subject: "Your OTP Code",                 // subject in mail setion 
+        text: ` your OTP code is: ${otp}. It will expire in 10 minutes.`, // message with six digit of code :
     };
 
     auth.sendMail(mailOptions, (error, emailResponse) => {
@@ -262,13 +269,48 @@ app.post('/verify-otp', (req, res) => {
     const { email, otp } = req.body;
 
     // Verify the OTP
-    if (otps[email] && otps[email] == otp) {
-        res.render('resetpassword');
+    if (otps[email] == otp) {        //check otp which is get on mail if it is equal to my mail then redirect to reset page :
+    res.render('resetpassword');    // render my rest page 
     } else {
-        res.status(401).send('Invalid OTP!');
+        res.status(401).send('Invalid OTP!'); // if wrong 
     }
 });
 
+
+/*------------------------------------------------------------------------testing for update pass --------------------------------->*/
+
+
+
+
+
+
+app.post('/reset-password', (req, res) => {
+    const { 'new-password': newPassword, 'confirm-password': confirmPassword } = req.body;
+
+    // Check if the passwords match
+    if (newPassword !== confirmPassword) {
+        return res.status(400).send('Passwords do not match!');
+    }
+
+    // Get the user's email or ID (assuming you have stored it in the session or another way)
+    const userEmail = req.session.email; // Example, assuming you stored the email in session
+
+    // Hash the new password before storing it in the database
+    bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
+        if (err) {
+            return res.status(500).send('Error hashing the password.');
+        }
+
+        // Update the password in the MySQL database
+        const sql = 'UPDATE users SET password = ? WHERE email = ?';
+        db.query(sql, [hashedPassword, userEmail], (err, result) => {
+            if (err) {
+                return res.status(500).send('Error updating the password in the database.');
+            }
+            res.send('Password reset successfully!');
+        });
+    });
+});
 
 
 
