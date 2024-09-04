@@ -135,34 +135,34 @@ app.post('/register', (req, res) => {
 });
 
 
-// POST route for handling my login.hbs page :
 app.post('/login', (req, res) => {
-    const { email, password } = req.body;
-
-    const sql = 'SELECT * FROM users WHERE email = ?';
-    db.query(sql, [email], (err, result) => {
+    const { username, password } = req.body;
+    const query = 'SELECT * FROM users WHERE username = ?';
+    db.execute(query, [username], (err, results) => {
         if (err) {
-            return res.status(500).send('Database error');
+            res.status(500).send('Database query error');
+            return;
         }
 
-        if (result.length === 0) {
-            return res.status(400).send('No user found');
+        if (results.length > 0) {
+            const user = results[0];
+            bcrypt.compare(password, user.password, (err, isMatch) => {
+                if (err) {
+                    res.status(500).send('Error comparing passwords');
+                    return;
+                }
+
+                if (isMatch) {
+                    //console.log(user);
+                    req.session.user = user;
+                    res.redirect('/dashboard');
+                } else {
+                    res.status(401).send('Invalid credentials');
+                }
+            });
+        } else {
+            res.status(401).send('Invalid credentials');
         }
-
-        const user = result[0];
-        bcrypt.compare(password, user.password, (err, isMatch) => {
-            if (err) {
-                return res.status(500).send('Error comparing passwords');
-            }
-
-            if (isMatch) {
-                // Passwords match, proceed with login
-                res.send('Login successful');
-            } else {
-                // Passwords do not match
-                res.status(400).send('Invalid credentials');
-            }
-        });
     });
 });
 
@@ -234,7 +234,7 @@ app.post('/send-mail', (req, res) => {
     // Generate OTP and store it
     const otp = generateOTP();
     otps[email] = otp;
-
+    req.session.email = email;
     // Sending the email with OTP
     const auth = nodemailer.createTransport({       //auth stands for authentication & create a object 
         service: "gmail",                           //use gmail service : Which type of service you use?
@@ -264,54 +264,37 @@ app.post('/send-mail', (req, res) => {
     });
 });
 
-// Route to handle OTP verification
 app.post('/verify-otp', (req, res) => {
     const { email, otp } = req.body;
-
-    // Verify the OTP
-    if (otps[email] == otp) {        //check otp which is get on mail if it is equal to my mail then redirect to reset page :
-    res.render('resetpassword');    // render my rest page 
+    if (otps[email] == otp) {
+        const emails = req.session.email;
+        res.render('resetpassword');
     } else {
-        res.status(401).send('Invalid OTP!'); // if wrong 
+        res.status(401).send('Invalid OTP!');
     }
 });
 
-
-/*------------------------------------------------------------------------testing for update pass --------------------------------->*/
-
-
-
-
-
-
+// POST route for password reset
 app.post('/reset-password', (req, res) => {
     const { 'new-password': newPassword, 'confirm-password': confirmPassword } = req.body;
+    if (newPassword !== confirmPassword) return res.status(400).send('Passwords do not match!');
 
-    // Check if the passwords match
-    if (newPassword !== confirmPassword) {
-        return res.status(400).send('Passwords do not match!');
-    }
+    const emails = req.session.email;
+    console.log(emails);
+    if (!emails) return res.status(400).send('User not found in session.');
 
-    // Get the user's email or ID (assuming you have stored it in the session or another way)
-    const userEmail = req.session.email; // Example, assuming you stored the email in session
+    bcrypt.hash(newPassword, saltRounds, (err, hashedPassword) => {
+        if (err) return res.status(500).send('Error hashing the password.');
 
-    // Hash the new password before storing it in the database
-    bcrypt.hash(newPassword, 10, (err, hashedPassword) => {
-        if (err) {
-            return res.status(500).send('Error hashing the password.');
-        }
-
-        // Update the password in the MySQL database
         const sql = 'UPDATE users SET password = ? WHERE email = ?';
-        db.query(sql, [hashedPassword, userEmail], (err, result) => {
-            if (err) {
-                return res.status(500).send('Error updating the password in the database.');
-            }
+        db.query(sql, [hashedPassword, emails], (err) => {
+            if (err) return res.status(500).send('Error updating the password in the database.');
+
+            req.session.destroy();
             res.send('Password reset successfully!');
         });
     });
 });
-
 
 
 //app listening with fat arrow function which takes 2arguments : 
