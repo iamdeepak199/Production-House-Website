@@ -1,7 +1,7 @@
+const { db } = require('../config/database');
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
-const { db1 } = require('../config/database');  // Adjust path if necessary
 const saltRounds = 10; // Ensure this is the same value used elsewhere
 
 // POST route for password reset
@@ -16,7 +16,7 @@ router.post('/reset-password', (req, res) => {
         if (err) return res.status(500).send('Error hashing the password.');
 
         const sql = 'UPDATE users SET password = ? WHERE email = ?';
-        db1.query(sql, [hashedPassword, emails], (err) => {
+        db.query(sql, [hashedPassword, emails], (err) => {
             if (err) return res.status(500).send('Error updating the password in the database.');
 
             req.session.destroy();

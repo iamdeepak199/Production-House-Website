@@ -1,5 +1,4 @@
-//const router = require("./login");
-const { db1 } = require('../config/database'); // Use the correct file name here
+const { db } = require('../config/database');
 const bcrypt = require('bcrypt');        //use in secur_pass:   Adds a unique salt to each password to ensure that even if two users have the same password, their hashes will be different.
 const express = require('express');
 const router = new express.Router(); 
@@ -27,7 +26,7 @@ router.post('/register', (req, res) => {
         }
 
         const query = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';   //otherwise insert Values to db:
-        db1.execute(query, [username, email, hashedPassword], (err, results) => {
+        db.execute(query, [username, email, hashedPassword], (err, results) => {
             if (err) {                                                                      //if error ocuured:
                 res.status(500).send('<h2>Sever side Error : Please try again later</h2>');
                 return;

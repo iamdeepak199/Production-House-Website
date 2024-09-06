@@ -1,4 +1,3 @@
-const { db1, db2 } = require('./config/database'); // Use the correct file name here
 const handlebars = require("express-handlebars");
 const bodyParser = require("body-parser");
 const fs = require("fs"); // File system module

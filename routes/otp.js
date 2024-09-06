@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const chalk = require('chalk'); 
 
 // Generate OTP function
 const generateOTP = () => {
@@ -43,7 +44,8 @@ router.post('/send-mail', (req, res) => {
             console.error('Error sending email to', email, ':', error);
             res.status(500).send('Error sending email');
         } else {
-            console.log('OTP sent successfully to', email);
+            console.log(chalk.bgGreenBright.bold.inverse('OTP sent successfully to', email));
+            
             res.status(200).send('OTP sent successfully!');
         }
     });
