@@ -21,20 +21,32 @@ router.post('/register', (req, res) => {
     const { username, email, password } = req.body;                                     
     bcrypt.hash(password, saltRounds, (err, hashedPassword) => {                       //use bcrypt.hash to set password :
         if (err) {                                                                     // if Error occured:
-            res.status(500).send('Error hashing password');
+            res.status(500).
+            send(`                                                           
+                <script>
+                    alert('Error hashing password');               
+                    window.location.href = '/';                                
+                </script>
+            `); 
             return;
         }
 
         const query = 'INSERT INTO users (username, email, password) VALUES (?, ?, ?)';   //otherwise insert Values to db:
         db.execute(query, [username, email, hashedPassword], (err, results) => {
             if (err) {                                                                      //if error ocuured:
-                res.status(500).send('<h2>Sever side Error : Please try again later</h2>');
+                res.status(500).
+                send(`                                                           
+                    <script>
+                        alert('Sever side Error : Please try again later!');               
+                        window.location.href = '/';                                
+                    </script>
+                `);         
                 return;
             }                                                        
-            res.send(`                                                            //response send 
+            res.send(`                                                           
                 <script>
-                    alert('User registered successfully!');               //create alert box to send message 
-                    window.location.href = '/';                                // Redirect to homepage or another page after alert while click OK 
+                    alert('User registered successfully!');               
+                    window.location.href = '/login';                                
                 </script>
             `);                                      
         });

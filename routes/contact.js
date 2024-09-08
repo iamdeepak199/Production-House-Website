@@ -12,12 +12,17 @@ router.post('/contact', (req, res) => {
     db.query(query, [name, email, message], (err, result) => {
         if (err) {
             console.error('Error saving contact information:', err);
-            return res.status(500).send('Server error, please try again later.');
+            return res.status(500).send(`                                                   
+                <script>
+                    alert('Server error, please try again later.');               
+                    window.location.href = '/';                         
+                </script>
+            `);
         }
-        res.send(`                                                   //response send 
+        res.send(`                                                   
             <script>
-                alert('Thank you for your message!');               //create alert box to send message 
-                window.location.href = '/';                         // Redirect to homepage or another page after alert while click OK 
+                alert('Thank you for your message!');               
+                window.location.href = '/';                         
             </script>
         `);
     });

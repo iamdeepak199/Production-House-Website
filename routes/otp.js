@@ -11,16 +11,16 @@ const generateOTP = () => {
 
 const otps = {}; // Object to store OTPs with user email as key
 
-// POST route to handle OTP sending
+// POST route to send OTP
 router.post('/send-mail', (req, res) => {
     const { email } = req.body;
 
     // Generate OTP and store it
     const otp = generateOTP();
     otps[email] = otp;
-    req.session.email = email;
+    req.session.email = email; // Store email in session
 
-    // Create a transporter object
+    // Create a transporter object for sending email
     const auth = nodemailer.createTransport({
         service: 'gmail',
         secure: true,
@@ -39,26 +39,45 @@ router.post('/send-mail', (req, res) => {
     };
 
     // Send the email
-    auth.sendMail(mailOptions, (error, emailResponse) => {
+    auth.sendMail(mailOptions, (error) => {
         if (error) {
-            console.error('Error sending email to', email, ':', error);
-            res.status(500).send('Error sending email');
+            console.error('Error sending email:', error);
+            return res.status(500).send(`
+                <script>
+                    alert('Error sending email!');                            
+                    window.location.href = '/';                                 
+                </script>
+            `);      
         } else {
             console.log(chalk.bgGreenBright.bold.inverse('OTP sent successfully to', email));
-            
-            res.status(200).send('OTP sent successfully!');
+            return res.status(200).send(`
+                <script>
+                    alert('OTP sent successfully!');                             
+                    window.location.href = '/forgot';                               
+                </script>
+            `);      
         }
     });
 });
 
 // POST route to verify OTP
 router.post('/verify-otp', (req, res) => {
-    const { email, otp } = req.body;
+    const { otp } = req.body; // No email field, use session email
+
+    const email = req.session.email; // Get email from session
+
+    // Verify OTP
     if (otps[email] == otp) {
         res.render('resetpassword'); // Assuming 'resetpassword' is the view for resetting the password
     } else {
-        res.status(401).send('Invalid OTP!');
+        res.status(401).send(`
+            <script>
+                alert('Oops Invalid OTP!!');                             
+                window.location.href = '/forgot';                                
+            </script>
+        `);      
     }
 });
+
 
 module.exports = router;

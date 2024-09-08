@@ -10,23 +10,25 @@
     <div class="container">
         <h2>Forgot Password</h2>
         <br><br>
-       <form action="/send-mail" method="POST">
-        <label for="email">Enter your email:</label>
-        <input type="email" id="email" name="email" required>
-        <button type="submit">Send OTP</button>
-    </form>
-    <br>
-     <form action="/verify-otp" method="POST">
-        <label for="email">Enter your email:</label>
-        <input type="email" id="otp-email" name="email" required>
-        <label for="otp">Enter your OTP:</label>
-        <input type="text" id="otp" name="otp" required>
-        <button type="submit">Verify OTP</button>
-        <button type="submit" onclick="goBack()">Back to Login</button>
-            <br><br>
-            </div>
+
+        <!-- Form to send OTP to email -->
+        <form action="/send-mail" method="POST">
+            <label for="email">Enter your email:</label>
+            <input type="email" id="email" name="email" required>
+            <button type="submit">Send OTP</button>
         </form>
-    </form>
+
+        <br>
+
+        <!-- Form to verify OTP (no email field) -->
+        <form action="/verify-otp" method="POST">
+            <label for="otp">Enter your OTP:</label>
+            <input type="text" id="otp" name="otp" required>
+            <button type="submit">Verify OTP</button>
+            <button type="button" onclick="goBack()">Back to Login</button>
+        </form>
+
+        <br><br>
 
         <script>
             function goBack() {

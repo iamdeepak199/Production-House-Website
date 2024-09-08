@@ -9,7 +9,11 @@ router.post('/login', (req, res) => {
     const query = 'SELECT * FROM users WHERE username = ?';
     db.execute(query, [username], (err, results) => {
         if (err) {
-            res.status(500).send('Database query error');
+            res.status(500).send(`
+                <script>
+                    alert('Database query error!');                                                           
+                </script>
+            `);      
             return;
         }
 
@@ -17,7 +21,12 @@ router.post('/login', (req, res) => {
             const user = results[0];
             bcrypt.compare(password, user.password, (err, isMatch) => {
                 if (err) {
-                    res.status(500).send('Error comparing passwords');
+                    res.status(500).send(`
+                        <script>
+                            alert('Error comparing passwords');                             
+                            window.location.href = '/login';                                
+                        </script>
+                    `);      
                     return;
                 }
 
@@ -28,8 +37,8 @@ router.post('/login', (req, res) => {
                 } else {
                     res.status(401).send(`
                         <script>
-                            alert('Invalid credentials!');                             //create alert box to send message 
-                            window.location.href = '/';                                // Redirect to homepage or another page after alert while click OK 
+                            alert('Invalid credentials!');                             
+                            window.location.href = '/login';                                
                         </script>
                     `);      
                     
@@ -38,8 +47,8 @@ router.post('/login', (req, res) => {
         } else {
             res.status(401).send(`
                 <script>
-                    alert('Invalid credentials!');                             //create alert box to send message 
-                    window.location.href = '/';                                // Redirect to homepage or another page after alert while click OK 
+                    alert('Invalid credentials!');                             
+                    window.location.href = '/login';                               
                 </script>
             `);      
         }
