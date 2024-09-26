@@ -17,7 +17,7 @@ const secret = crypto.randomBytes(32).toString('hex');
 
 // Create an express app
 const app = express();
-const port = process.env.PORT || 3000; // Set the port
+const port = process.env.PORT || 8000; // Set the port
 
 // Middleware setup
 app.use(express.json());
@@ -41,6 +41,7 @@ app.use(session({
 app.set('view engine', 'hbs');
 
 // <--------------------- Import all views here --------------------->
+ 
 // GET route for the index page
 app.get('/', (req, res) => {
     res.render('index');
@@ -72,6 +73,7 @@ app.get('*', (req, res) => {
 });
 
 // <--------------------- Import all routes here --------------------->
+
 // Route to register
 const registerRouter = require('./routes/register');
 app.use('/', registerRouter);

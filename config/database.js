@@ -6,7 +6,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '12345',
-    database: 'users_data' // Combined database
+    database: 'users_data'                                    // Combined database
 });
 
 // Connect to the database

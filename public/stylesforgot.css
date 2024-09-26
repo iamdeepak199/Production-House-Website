@@ -17,7 +17,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 80px;
-    height: 60%;
+    height: 52%;
     width: 23%;
 }
 
@@ -35,7 +35,7 @@ label {
     color: #555555;
 }
 input[type="text"]{
-    width: 90%;
+    width: 95%;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #dddddd;
@@ -44,7 +44,7 @@ input[type="text"]{
 
 }
 input[type="email"] {
-    width: 90%;
+    width: 95%;
     padding: 10px;
     margin-bottom: 20px;
     border: 1px solid #dddddd;
