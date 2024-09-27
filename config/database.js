@@ -5,7 +5,7 @@ const chalk = require('chalk');
 const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
-    password: '12345',
+    password: '',                                              //password
     database: 'users_data'                                    // Combined database
 });
 
